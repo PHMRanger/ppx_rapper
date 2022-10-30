@@ -4,7 +4,7 @@ module Buildef = Ast_builder.Default
 
 type input_kind = [ `Labelled_args | `Record ]
 
-type output_kind = [ `Tuple | `Record | `Function ]
+type output_kind = [ `Tuple | `Record | `Record_flat | `Function ]
 
 type extension_contents = {
   in_params: Query.param list;
@@ -21,6 +21,8 @@ exception Error of string
 
 (** [up_to_last (xs @ [x])] returns [xs] *)
 let up_to_last xs = List.take xs (List.length xs - 1)
+
+let () = ()
 
 (** Produces individual Caqti types from parsed parameters *)
 let caqti_type_of_param ~loc Query.{ typ; opt; _ } =
@@ -216,6 +218,18 @@ let function_body_general ~loc factory connection_function_expr
                      record_expression ~loc (with_output_field_names ps))) )
       in
       factory ~loc output_nested_tuple_pattern output_expression
+        connection_function_expr input_nested_tuple_expression
+  | _, `Record_flat ->
+      let output_nested_tuple_pattern, output_expression =
+        match make_qualified_output out_params with
+        | One out_params ->
+            ( nested_tuple_pattern ~loc out_params,
+              record_expression ~loc out_params )
+        | Many out_params_groups ->
+            ( nested_tuple_pattern ~loc (with_output_field_names out_params),
+              record_expression ~loc (with_output_field_names (List.concat out_params_groups)))
+        in
+        factory ~loc output_nested_tuple_pattern output_expression
         connection_function_expr input_nested_tuple_expression
   | _, `Tuple ->
       let output_nested_tuple_pattern, output_expression =

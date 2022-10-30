@@ -159,6 +159,8 @@ type a' = { a1: int; a2: string }
 type b' = { b1: bool }
 type c' = { c1: int }
 
+type a'b'c' = { a1: int; a2: string; b1: bool; c1: int }
+
 let get_multiple_record_out =
   [%rapper
     get_many
@@ -167,6 +169,15 @@ let get_multiple_record_out =
       FROM some_table
       |sql}
       record_out]
+
+let get_multiple_record_out_flat =
+  [%rapper
+    get_many
+      {sql|
+      SELECT @int{c.c1}, @int{a.a1}, @string{a.a2}, @bool{b.b1}
+      FROM some_table
+      |sql}
+      record_out_flat]
 
 let get_cards_function =
   [%rapper

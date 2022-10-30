@@ -5,7 +5,7 @@ module Buildef = Ast_builder.Default
 (** Handle 'record_in' etc. in [%rapper "SELECT * FROM USERS" record_in record_out] *)
 let parse_args args =
   let allowed_args =
-    [ "record_in"; "record_out"; "function_out"; "syntax_off" ]
+    [ "record_in"; "record_out"; "record_out_flat"; "function_out"; "syntax_off" ]
   in
   match
     List.find
@@ -17,14 +17,16 @@ let parse_args args =
   | None ->
       let record_in = List.mem args "record_in" ~equal:String.equal in
       let record_out = List.mem args "record_out" ~equal:String.equal in
+      let record_out_flat = List.mem args "record_out_flat" ~equal:String.equal in
       let function_out = List.mem args "function_out" ~equal:String.equal in
       let input_kind = if record_in then `Record else `Labelled_args in
       let output_kind =
-        match (record_out, function_out) with
-        | false, false -> `Tuple
-        | true, false -> `Record
-        | false, true -> `Function
-        | true, true -> assert false
+        match (record_out, record_out_flat, function_out) with
+        | false, false, false -> `Tuple
+        | true, false, false -> `Record
+        | false, true, false -> `Record_flat
+        | false, false, true -> `Function
+        | _ -> assert false
       in
       let syntax_off = List.mem args "syntax_off" ~equal:String.equal in
       assert (not (function_out && record_out));
@@ -276,6 +278,9 @@ let expand_apply ~loc ~path:_ action query args =
                    | "execute" -> (
                        match output_kind with
                        | `Record ->
+                           Error
+                             "record_out is not a valid argument for execute"
+                       | `Record_flat ->
                            Error
                              "record_out is not a valid argument for execute"
                        (* TODO - could implement this *)
