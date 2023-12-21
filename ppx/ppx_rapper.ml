@@ -245,7 +245,7 @@ let expand_apply ~loc ~path:_ action query args =
             let syntax_result =
               match syntax_off with
               | false -> (
-                  let query_sql =
+                  let _query_sql =
                     match parsed_query.list_params with
                     | Some { subsql; string_index; _ } ->
                         let sql = parsed_query.sql in
@@ -259,10 +259,7 @@ let expand_apply ~loc ~path:_ action query args =
                         sql_before ^ subsql ^ sql_after
                     | None -> parsed_query.sql
                   in
-                  match Pg_query.parse query_sql with
-                  | Ok _ -> Ok ()
-                  | Error msg ->
-                      Error (Printf.sprintf "Syntax error in SQL: '%s'" msg))
+                  Ok ())
               | true -> Ok ()
             in
             match syntax_result with

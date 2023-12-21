@@ -23,7 +23,6 @@
  (depends
   (ocaml
    (>= 4.07))
-  pg_query
   (ppxlib
    (>= 0.3.1))
   (base
