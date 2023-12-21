@@ -29,7 +29,7 @@
   (base
    (>= v0.11.1))
   (caqti
-   (>= 1.2.0))))
+   (>= 1.7.0))))
 
 (package
  (name ppx_rapper_async)
@@ -52,4 +52,16 @@
    (= :version))
   caqti-lwt
   lwt
+  (caqti-type-calendar :with-test)))
+
+(package
+ (name ppx_rapper_eio)
+ (synopsis "EIO support for ppx_rapper")
+ (depends
+  (ocaml
+   (>= 4.07))
+  (ppx_rapper
+   (= :version))
+  caqti-eio
+  eio
   (caqti-type-calendar :with-test)))
